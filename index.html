@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="icon" href="data:,">
+    <title>Smart Temple Booking</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: linear-gradient(to right, #74ebd5, #ACB6E5);
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            margin: auto;
+            box-shadow: 0px 0px 10px gray;
+        }
+
+        input, select, button {
+            padding: 10px;
+            width: 90%;
+            margin: 8px;
+        }
+
+        button {
+            background: blue;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: darkblue;
+        }
+
+        #result {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        #crowd {
+            font-size: 18px;
+            font-weight: bold;
+
+        }
+
+.low { color: green; }
+.medium { color: orange; }
+.high { color: red; }
+    </style>
+</head>
+
+<body>
+
+<h1>Temple Booking system</h1>
+
+<h3>Crowd Level: <span id="crowd">Checking...</span></h3>
+
+<form id="bookingForm">
+    <input type="text" id="name" placeholder="Enter Name" required>
+
+    <select id="temple" onchange="getCrowd()">
+        <option value="Vaishno Devi">Vaishno Devi</option>
+        <option value="Tirupati">Tirupati</option>
+        <option value="Kashi Vishwanath">Kashi Vishwanath</option>
+        <option value="Kedarnath">Kedarnath</option>
+        <option value="Tirumala Venkateshwara">Tirumala Venkatehwara</option>        
+    </select>
+
+    <input type="time" id="time" required>
+
+    <button type="submit">Book Slot</button>
+</form>
+
+<p id="result"></p>
+
+<script>
+
+// GET CROWD LEVEL
+async function getCrowd() {
+
+    
+    const temple = document.getElementById("temple").value;
+
+const res = await fetch("http://localhost:3000/crowd-level?temple=" + temple);
+    const data = await res.json();
+
+    const crowdElement = document.getElementById("crowd");
+crowdElement.innerText = data.crowd;
+
+crowdElement.classList.remove("low", "medium", "high");
+
+if (data.crowd.includes("Low")) crowdElement.classList.add("low");
+else if (data.crowd.includes("Medium")) crowdElement.classList.add("medium");
+else crowdElement.classList.add("high");
+}
+
+// update every 2 seconds
+setInterval(getCrowd, 2000);
+
+// BOOK SLOT
+document.getElementById("bookingForm")
+.addEventListener("submit", async function(e) {
+
+    e.preventDefault();
+
+const btn = document.querySelector("button");
+btn.innerText = "Booking...";
+btn.disabled = true;
+
+    const data = {
+        name: document.getElementById("name").value,
+        temple: document.getElementById("temple").value,
+        time: document.getElementById("time").value
+    };
+
+    const res = await fetch("http://localhost:3000/book-slot", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    });
+
+    const result = await res.json();
+
+    document.getElementById("result").innerText = result.message;
+
+    
+data.ticketId = result.ticketId;
+localStorage.setItem("booking", JSON.stringify(data));
+
+    btn.innerText = "Book Slot";
+btn.disabled = false;
+
+
+setTimeout(() => {
+    window.location.href = "ticket.html";
+}, 1500);
+    getCrowd(); // update crowd after booking
+});
+
+// LOAD CROWD WHEN PAGE OPENS
+getCrowd();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Booking Ticket</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f0f0f0;
+            text-align: center;
+        }
+
+        .ticket {
+            background: white;
+            padding: 20px;
+            margin: 50px auto;
+            width: 300px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px gray;
+        }
+
+        h1 {
+            color: green;
+        }
+    </style>
+
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+</head>
+
+<body>
+
+<div class="ticket">
+    <h1>🎫 E-Ticket</h1>
+
+    <p id="details"></p>
+
+    <div id="qrcode"></div>
+
+</div>
+
+<script>
+
+const booking = JSON.parse(localStorage.getItem("booking"));
+
+const details = document.getElementById("details");
+
+if (!booking) {
+    details.innerText = "No booking found ❌";
+} else {
+
+    details.innerHTML =
+        "<b>Name:</b> " + booking.name + "<br><br>" +
+        "<b>Temple:</b> " + booking.temple + "<br><br>" +
+        "<b>Time:</b> " + booking.time + "<br><br>" +
+"<b>Ticket ID:</b> " + booking.ticketId;
+
+    //  QR CODE GENERATION
+
+if (booking) {
+    new QRCode(document.getElementById("qrcode"), {
+
+text: "http://localhost:3000/verify?data=" + 
+      booking.name + "-" + booking.temple + "-" + booking.time,
+        width: 150,
+        height: 150
+    });
+}
+}
+</script>
+
+</body>
+</html>
