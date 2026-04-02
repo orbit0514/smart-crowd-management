@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            background: #f4f4f4;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin: 20px auto;
+            width: 400px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px gray;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>📊 Temple Admin Dashboard</h1>
+
+<div class="card">
+    <h3>Total Bookings: <span id="count">0</span></h3>
+</div>
+
+<div class="card">
+    <h3>All Bookings</h3>
+    <ul id="list"></ul>
+</div>
+
+<script>
+
+async function loadBookings() {
+    const res = await fetch("http://localhost:3000/bookings");
+    const data = await res.json();
+
+    document.getElementById("count").innerText = data.length;
+
+    const list = document.getElementById("list");
+    list.innerHTML = "";
+
+    data.forEach(b => {
+        const li = document.createElement("li");
+        li.innerText =
+            b.name + " | " + b.temple + " | " + b.time;
+        list.appendChild(li);
+    });
+}
+
+// refresh every 2 sec
+setInterval(loadBookings, 2000);
+
+// initial load
+loadBookings();
+
+</script>
+
+</body>
+</html>
